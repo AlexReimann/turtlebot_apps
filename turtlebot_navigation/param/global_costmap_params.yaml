@@ -1,12 +1,20 @@
 global_costmap:
-   global_frame: /map
-   robot_base_frame: /base_footprint
-   update_frequency: 1.0
-   publish_frequency: 0.5
-   static_map: true
-   transform_tolerance: 0.5
-   plugins:
-     - {name: static_layer,            type: "costmap_2d::StaticLayer"}
-     - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
-     - {name: inflation_layer,         type: "costmap_2d::InflationLayer"}
-
+  global_frame:         map
+  robot_base_frame:     base_footprint
+  # Frequency to perform marking and clearing actions on the map
+  update_frequency:     10.0 # formerly 1.0
+  publish_frequency:    1.0  # set this to update_frequency if you wish to see real-time in rviz
+  static_map:           true
+  resolution:           0.02
+  transform_tolerance:  0.5
+  plugins:
+    - {name: static_layer,            type: "costmap_2d::StaticLayer"}
+    - {name: footprint_layer,         type: "costmap_2d::FootprintLayer"}
+      # Obstacle layers are required here in order to enable the global planner to plan around 
+      # newly detected obstacles. Otherwise the local planner while have a hard time when attempting
+      # to achieve it alone.
+    - {name: obstacle_layer,          type: "costmap_2d::VoxelLayer"}
+#    - {name: obstacle_layer,          type: "costmap_2d::ExtendedVoxelLayer"}
+#    - {name: range_sensor_layer,      type: "range_sensor_layer::RangeSensorLayer"}
+#    - {name: range_sensor_layer,      type: "range_sensor_layer::ExtendedRangeSensorLayer"}
+    - {name: global_inflation_layer,  type: "costmap_2d::InflationLayer"}

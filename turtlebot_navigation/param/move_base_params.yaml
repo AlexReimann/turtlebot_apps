@@ -4,53 +4,63 @@
 #
 shutdown_costmaps: false
 
-controller_frequency: 5.0
-controller_patience: 3.0
+controller_frequency: 10.0     #local planner frequency, should be at least as high as local costmap frequency
+controller_patience: 30.0
 
+planner_frequency: 10.0
+planner_patience: 50.0
 
-planner_frequency: 1.0
-planner_patience: 5.0
-
-oscillation_timeout: 10.0
+oscillation_timeout: 50.0
 oscillation_distance: 0.2
 
 # local planner - default is trajectory rollout
-base_local_planner: "dwa_local_planner/DWAPlannerROS"
+base_local_planner: "closed_loop_rrt/ClosedLoopRRTROS" #"dwa_local_planner/DWAPlannerROS"
+base_global_planner: "global_planner/GlobalPlanner" #"navfn/NavfnROS" #alternatives: global_planner/GlobalPlanner, carrot_planner/CarrotPlanner
 
-base_global_planner: "navfn/NavfnROS" #alternatives: global_planner/GlobalPlanner, carrot_planner/CarrotPlanner
+# recovery behaviors; we avoid spinning, but we need a fall-back replanning
+recovery_behavior_enabled: true
 
+recovery_behaviors:
+#  - name: 'super_conservative_reset'
+#    type: 'clear_costmap_recovery/ClearCostmapRecovery'
+#  - name: 'conservative_reset'
+#    type: 'clear_costmap_recovery/ClearCostmapRecovery'
+#  - name: 'aggressive_reset'
+#    type: 'clear_costmap_recovery/ClearCostmapRecovery'
+#  - name: 'clearing_rotation'
+#    type: 'rotate_recovery/RotateRecovery'
+  #- name: 'honk_and_wait'
+    #type: 'honk_wait_recovery/HonkWaitRecovery'
+  #- name: 'global_costmap_reset'
+    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
+  - name: 'clear_and_rotate'
+    type: 'clear_rotate_recovery/ClearRotateRecovery'
 
-#We plan to integrate recovery behaviors for turtlebot but currently those belong to gopher and still have to be adapted.
-## recovery behaviors; we avoid spinning, but we need a fall-back replanning
-#recovery_behavior_enabled: true
-
-#recovery_behaviors:
-  #- name: 'super_conservative_reset1'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'conservative_reset1'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'aggressive_reset1'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'clearing_rotation1'
-    #type: 'rotate_recovery/RotateRecovery'
-  #- name: 'super_conservative_reset2'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'conservative_reset2'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'aggressive_reset2'
-    #type: 'clear_costmap_recovery/ClearCostmapRecovery'
-  #- name: 'clearing_rotation2'
-    #type: 'rotate_recovery/RotateRecovery'
-
-#super_conservative_reset1:
-  #reset_distance: 3.0
-#conservative_reset1:
-  #reset_distance: 1.5
-#aggressive_reset1:
-  #reset_distance: 0.0
-#super_conservative_reset2:
-  #reset_distance: 3.0
-#conservative_reset2:
-  #reset_distance: 1.5
-#aggressive_reset2:
-  #reset_distance: 0.0
+super_conservative_reset:
+  reset_distance: 3.0
+  layer_names:
+    - obstacle_layer
+    - range_sensor_layer
+conservative_reset:
+  reset_distance: 0.7
+  layer_names:
+    - obstacle_layer
+    - range_sensor_layer
+aggressive_reset:
+  reset_distance: 0.0
+  layer_names:
+    - obstacle_layer
+    - range_sensor_layer
+global_costmap_reset:
+  reset_distance: 1.0
+  layer_names:
+    - obstacle_layer
+    - range_sensor_layer
+honk_and_wait:
+  waiting_duration: 5.0
+clear_and_rotate:
+  reset_distance: 0.0
+  safe_rotation: false
+  layer_names:
+    - obstacle_layer
+    - range_sensor_layer
